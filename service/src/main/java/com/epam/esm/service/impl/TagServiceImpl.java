@@ -42,18 +42,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto findById(Long id) {
-        if (tagDao.isExists(id)) {
-            return tagDao.findById(id).map(tagToDtoConverter::convert).get();
-        }
-        throw new EntityNotFoundException();
+        return tagDao.findById(id).map(tagToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     public TagDto findByName(String name) {
-        if (tagDao.isExists(name)) {
-            return tagDao.findByName(name).map(tagToDtoConverter::convert).get();
-        }
-        throw new EntityNotFoundException();
+        return tagDao.findByName(name).map(tagToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override

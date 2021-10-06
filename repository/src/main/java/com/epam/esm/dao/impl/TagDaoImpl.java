@@ -4,6 +4,7 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.mapper.TagRowMapper;
 import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -40,12 +41,24 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Optional<Tag> findById(Long id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(FIND_TAG_BY_ID, new TagRowMapper(), id));
+        Optional<Tag> optionalTag;
+        try {
+            optionalTag = Optional.of(jdbcTemplate.queryForObject(FIND_TAG_BY_ID, new TagRowMapper(), id));
+        } catch (EmptyResultDataAccessException e) {
+            optionalTag = Optional.empty();
+        }
+        return optionalTag;
     }
 
     @Override
     public Optional<Tag> findByName(String name) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(FIND_TAG_BY_NAME, new TagRowMapper(), name));
+        Optional<Tag> optionalTag;
+        try {
+            optionalTag = Optional.of(jdbcTemplate.queryForObject(FIND_TAG_BY_NAME, new TagRowMapper(), name));
+        } catch (EmptyResultDataAccessException e) {
+            optionalTag = Optional.empty();
+        }
+        return optionalTag;
     }
 
     @Override

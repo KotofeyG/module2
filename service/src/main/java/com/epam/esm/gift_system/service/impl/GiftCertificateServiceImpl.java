@@ -45,10 +45,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto insert(GiftCertificateDto giftCertificateDto) {
+        if (giftCertificateDto == null) {
+            throw new EntityCreationException();
+        }
         GiftCertificate giftCertificate = toGiftCertificateConverter.convert(giftCertificateDto);
         throwExceptionIfCertificateInvalid(giftCertificate);
 
-        giftCertificate.setTags(giftCertificate.getTags().stream().map(tagDao::findOrCreateTag).toList());
+        giftCertificate.setTags(giftCertificate.getTags());
         giftCertificateDao.insert(giftCertificate);
         giftCertificateDao.addTagsToCertificate(giftCertificate.getId(), giftCertificate.getTags());
         return GiftCertificateToDtoConverter.convert(giftCertificate);

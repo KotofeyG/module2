@@ -28,19 +28,14 @@ public class ControllerAdvisor {
         return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(EntityAlreadyExistsException.class)
+    @ExceptionHandler({EntityAlreadyExistsException.class, EntityIsUsedException.class})
     public ResponseEntity<Object> handleEntityAlreadyExistsException(EntityAlreadyExistsException e, Locale locale) {
-        return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(EntityIsUsedException.class)
-    public ResponseEntity<Object> handleEntityAlreadyExistsException(EntityIsUsedException e, Locale locale) {
         return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({EntityNotValidNameException.class, EntityNotValidDescriptionException.class
             , EntityNotValidPriceException.class, EntityNotValidDurationException.class, EntityNotValidDateException.class
-            , EntityNotValidTagNameException.class})
+            , EntityNotValidTagNameException.class, EntityCreationException.class})
     public ResponseEntity<Object> handleEntityAlreadyExistsException(EntityNotValidNameException e, Locale locale) {
         return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.BAD_REQUEST);
     }

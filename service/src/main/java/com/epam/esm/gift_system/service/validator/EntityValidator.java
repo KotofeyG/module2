@@ -13,7 +13,7 @@ public class EntityValidator {
     private static final Set<String> AVAILABLE_SORT_ORDERS = Set.of("asc", "desc", "ASC", "DESC", "");
     private static final String NAME_REGEX = "[A-Za-zА-Яа-я-, ]{2,75}";
     private static final String DESCRIPTION_REGEX = "[A-Za-zА-Яа-я\\d-.,:;!?()\" ]{2,255}";
-    private static final String PRICE_REGEX = "[\\d^0]{1,5}|\\d{1,5}\\.\\d{1,2}";
+    private static final String PRICE_REGEX = "\\d{1,5}|\\d{1,5}\\.\\d{1,2}";
 
     public static boolean isNameValid(String name) {
         return name != null && !name.isBlank() && name.matches(NAME_REGEX);

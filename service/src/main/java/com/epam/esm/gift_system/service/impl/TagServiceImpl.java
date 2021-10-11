@@ -28,7 +28,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto insert(TagDto tagDto) {
-        if (EntityValidator.isNameValid(tagDto.getName())) {
+        if (tagDto != null && EntityValidator.isNameValid(tagDto.getName())) {
             if (!tagDao.isExists(tagDto.getName())) {
                 return tagToDtoConverter.convert(tagDao.insert(dtoToTagConverter.convert(tagDto)));
             }

@@ -14,13 +14,13 @@ public class GiftCertificateDto {
     private int duration;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
-    private List<Tag> tags;
+    private List<TagDto> tags;
 
     public GiftCertificateDto() {
     }
 
     public GiftCertificateDto(long id, String name, String description, BigDecimal price, int duration
-            , LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
+            , LocalDateTime createDate, LocalDateTime lastUpdateDate, List<TagDto> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -87,11 +87,11 @@ public class GiftCertificateDto {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public List<Tag> getTags() {
+    public List<TagDto> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<TagDto> tags) {
         this.tags = tags;
     }
 

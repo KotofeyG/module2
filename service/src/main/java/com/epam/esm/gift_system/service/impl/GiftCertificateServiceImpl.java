@@ -1,6 +1,7 @@
 package com.epam.esm.gift_system.service.impl;
 
 import com.epam.esm.gift_system.service.converter.DtoToGiftCertificateConverter;
+import com.epam.esm.gift_system.service.converter.DtoToTagConverter;
 import com.epam.esm.gift_system.service.exception.*;
 import com.epam.esm.gift_system.repository.dao.TagDao;
 import com.epam.esm.gift_system.repository.model.GiftCertificate;
@@ -26,16 +27,19 @@ import static com.epam.esm.gift_system.service.validator.EntityValidator.*;
 public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final TagDao tagDao;
     private final GiftCertificateDao giftCertificateDao;
-    private final GiftCertificateToDtoConverter toDtoConverter;
+    private final GiftCertificateToDtoConverter GiftCertificateToDtoConverter;
     private final DtoToGiftCertificateConverter toGiftCertificateConverter;
+    private final DtoToTagConverter dtoToTagConverter;
 
     @Autowired
     public GiftCertificateServiceImpl(TagDao tagDao, GiftCertificateDao giftCertificateDao
-            , GiftCertificateToDtoConverter toDtoConverter, DtoToGiftCertificateConverter toGiftCertificateConverter) {
+            , GiftCertificateToDtoConverter giftCertificateToDtoConverter
+            , DtoToGiftCertificateConverter toGiftCertificateConverter, DtoToTagConverter dtoToTagConverter) {
         this.tagDao = tagDao;
         this.giftCertificateDao = giftCertificateDao;
-        this.toDtoConverter = toDtoConverter;
+        GiftCertificateToDtoConverter = giftCertificateToDtoConverter;
         this.toGiftCertificateConverter = toGiftCertificateConverter;
+        this.dtoToTagConverter = dtoToTagConverter;
     }
 
     @Override
@@ -47,26 +51,26 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setTags(giftCertificate.getTags().stream().map(tagDao::findOrCreateTag).toList());
         giftCertificateDao.insert(giftCertificate);
         giftCertificateDao.addTagsToCertificate(giftCertificate.getId(), giftCertificate.getTags());
-        return toDtoConverter.convert(giftCertificate);
+        return GiftCertificateToDtoConverter.convert(giftCertificate);
     }
 
     private void throwExceptionIfCertificateInvalid(GiftCertificate giftCertificate) {
         if (!isNameValid(giftCertificate.getName())) {
             throw new EntityNotValidNameException();
         }
-        if (isDescriptionValid(giftCertificate.getDescription())) {
+        if (!isDescriptionValid(giftCertificate.getDescription())) {
             throw new EntityNotValidDescriptionException();
         }
-        if (isPriceValid(giftCertificate.getPrice())) {
+        if (!isPriceValid(giftCertificate.getPrice())) {
             throw new EntityNotValidPriceException();
         }
-        if (isDurationValid(giftCertificate.getDuration())) {
+        if (!isDurationValid(giftCertificate.getDuration())) {
             throw new EntityNotValidDurationException();
         }
-        if (isLastUpdateDateValid(giftCertificate.getCreateDate(), giftCertificate.getLastUpdateDate())) {
+        if (!isLastUpdateDateValid(giftCertificate.getCreateDate(), giftCertificate.getLastUpdateDate())) {
             throw new EntityNotValidDateException();
         }
-        if (isTagNameListValid(giftCertificate.getTags())) {
+        if (!isTagNameListValid(giftCertificate.getTags())) {
             throw new EntityNotValidTagNameException();
         }
     }
@@ -74,15 +78,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto updated) {
-        GiftCertificateDto selected = giftCertificateDao.findById(id).map(toDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
+        GiftCertificateDto selected = giftCertificateDao.findById(id).map(GiftCertificateToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
         Map<String, Object> updatedFields = checkAndGetUpdatedFields(selected, updated);
-        List<Tag> updatedTags = updated.getTags();
+        List<Tag> updatedTags = updated.getTags().stream().map(dtoToTagConverter::convert).toList();
 
         if (!updatedTags.isEmpty()) {
             throwExceptionIfTagListInvalid(updatedTags);
-            giftCertificateDao.deleteTagsFromCertificate(selected.getId(), selected.getTags());
+            giftCertificateDao.deleteTagsFromCertificate(selected.getId(), selected.getTags().stream().map(dtoToTagConverter::convert).toList());
             giftCertificateDao.addTagsToCertificate(selected.getId(), updatedTags);
-            selected.setTags(updatedTags);
+            selected.setTags(updated.getTags());
         }
         if (!updatedFields.isEmpty()) {
             giftCertificateDao.update(selected.getId(), updatedFields);
@@ -147,21 +151,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDto findById(Long id) {
-        return giftCertificateDao.findById(id).map(toDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
+        return giftCertificateDao.findById(id).map(GiftCertificateToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     public List<GiftCertificateDto> findByAttributes(String tagName, String searchPart, List<String> sortingFields, String orderSort) {
         if (isGiftCertificateFieldListValid(sortingFields) && isOrderSortValid(orderSort)) {
             List<GiftCertificate> giftCertificateList = giftCertificateDao.findByAttributes(tagName, searchPart, sortingFields, orderSort);
-            return giftCertificateList.stream().map(toDtoConverter::convert).toList();
+            return giftCertificateList.stream().map(GiftCertificateToDtoConverter::convert).toList();
         }
         throw new EntityNotValidNameException();
     }
 
     @Override
     public GiftCertificateDto delete(Long id) {
-        GiftCertificateDto deletedGiftCertificate = giftCertificateDao.findById(id).map(toDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
+        GiftCertificateDto deletedGiftCertificate = giftCertificateDao.findById(id).map(GiftCertificateToDtoConverter::convert).orElseThrow(EntityNotFoundException::new);
         giftCertificateDao.delete(id);
         return deletedGiftCertificate;
     }

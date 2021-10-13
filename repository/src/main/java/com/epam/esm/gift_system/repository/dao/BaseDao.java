@@ -5,7 +5,7 @@ import com.epam.esm.gift_system.repository.model.AbstractEntity;
 import java.util.Optional;
 
 public interface BaseDao<T extends AbstractEntity> {
-    T insert(T t);
+    T create(T t);
 
     Optional<T> findById(Long id);
 

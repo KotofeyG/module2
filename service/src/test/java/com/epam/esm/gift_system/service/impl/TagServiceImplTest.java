@@ -5,179 +5,164 @@ import com.epam.esm.gift_system.repository.model.Tag;
 import com.epam.esm.gift_system.service.converter.DtoToTagConverter;
 import com.epam.esm.gift_system.service.converter.TagToDtoConverter;
 import com.epam.esm.gift_system.service.dto.TagDto;
-import com.epam.esm.gift_system.service.exception.EntityAlreadyExistsException;
-import com.epam.esm.gift_system.service.exception.EntityIsUsedException;
-import com.epam.esm.gift_system.service.exception.EntityNotFoundException;
-import com.epam.esm.gift_system.service.exception.EntityNotValidTagNameException;
+import com.epam.esm.gift_system.service.exception.*;
+import com.epam.esm.gift_system.service.util.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.gift_system.service.util.validator.EntityValidator.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
-    TagServiceImpl tagService;
-    TagDaoImpl tagDao;
-    TagToDtoConverter tagToDtoConverter;
-    DtoToTagConverter dtoToTagConverter;
-    Tag tag;
-    TagDto expected;
+    private static final long TAG_ID = 1;
+    private static final String TAG_NAME = "Tag";
 
-    {
-        tag = new Tag();
-        tag.setId(1L);
-        tag.setName("TagTestName");
-        expected = new TagDto();
-        expected.setId(1L);
-        expected.setName("TagTestName");
-        tagToDtoConverter = new TagToDtoConverter();
-        dtoToTagConverter = new DtoToTagConverter();
-    }
+    private Tag tag;
+    private TagDto expected;
+    private List<Tag> tagList;
+    private List<TagDto> expectedList;
+
+    @InjectMocks
+    private TagServiceImpl service;
+    @Mock
+    private TagDaoImpl tagDao;
+    @Mock
+    private EntityValidator validator;
+    @Mock
+    private TagToDtoConverter toTagDtoConverter;
+    @Mock
+    private DtoToTagConverter toTagConverter;
 
     @BeforeEach
     void setUp() {
-        tagDao = mock(TagDaoImpl.class);
-        tagService = new TagServiceImpl(tagDao, tagToDtoConverter, dtoToTagConverter);
+        tag = new Tag(TAG_ID, TAG_NAME);
+        expected = new TagDto(TAG_ID, TAG_NAME);
+        tagList = List.of(tag, tag, tag);
+        expectedList = List.of(expected, expected, expected);
     }
 
     @Test
-    void insertShouldInsertNewTag() {
-        doReturn(tag).when(tagDao).insert(tag);
-        TagDto actual = tagService.insert(expected);
+    void create() {
+        doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
+        doReturn(false).when(tagDao).isExisting(Mockito.anyString());
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        doReturn(tag).when(tagDao).create(Mockito.any(Tag.class));
+        doReturn(tag).when(toTagConverter).convert(Mockito.any(TagDto.class));
+        TagDto actual = service.create(expected);
         assertEquals(expected, actual);
     }
 
     @Test
-    void insertShouldThrowExceptionWithNullArg() {
+    void createThrowExceptionWhenArgInvalid() {
+        doReturn(false).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         try {
-            tagService.insert(null);
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with null argument");
+            service.create(expected);
+            fail("Method insert should throw exception EntityNotValidTagNameException");
         } catch (EntityNotValidTagNameException e) {
             assertTrue(true);
         }
     }
 
     @Test
-    void insertShouldThrowExceptionWithEmptyArg() {
+    void createThrowExceptionWhenTagAlreadyExists() {
+        doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
+        doReturn(true).when(tagDao).isExisting(Mockito.anyString());
         try {
-            tagService.insert(new TagDto(1L, ""));
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with empty argument");
-        } catch (EntityNotValidTagNameException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void insertShouldThrowExceptionWithInvalidArg() {
-        try {
-            tagService.insert(new TagDto(1L, "<TagTestName>"));
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with invalid argument");
-        } catch (EntityNotValidTagNameException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void insertShouldThrowExceptionWithLongWordArg() {
-        try {
-            tagService.insert(new TagDto(1L, "a".repeat(76)));
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with long word argument");
-        } catch (EntityNotValidTagNameException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void insertShouldThrowExceptionWithLetterArg() {
-        try {
-            tagService.insert(new TagDto(1L, "a"));
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with letter argument");
-        } catch (EntityNotValidTagNameException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    void insertShouldThrowExceptionWithExistingArg() {
-        try {
-            doReturn(true).when(tagDao).isExists(tag.getName());
-            tagService.insert(expected);
-            fail("TagServiceImpl.insert(TagDto tagDto) should throw an exception with existing argument");
+            service.create(expected);
+            fail("Method insert should throw exception EntityAlreadyExistsException");
         } catch (EntityAlreadyExistsException e) {
             assertTrue(true);
         }
     }
 
     @Test
-    void findByIdShouldFinishSuccessfully() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(tag.getId());
-        TagDto actual = tagService.findById(expected.getId());
+    void findById() {
+        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        TagDto actual = service.findById(TAG_ID);
         assertEquals(expected, actual);
     }
 
     @Test
-    void findByIdShouldThrowException() {
+    void findByIdThrowExceptionResourceDoesntExist() {
+        doReturn(Optional.empty()).when(tagDao).findById(Mockito.anyLong());
         try {
-            doReturn(Optional.empty()).when(tagDao).findById(Mockito.any());
-            tagService.findById(expected.getId());
-            fail("TagServiceImpl.findById(Long id) should throw an exception with non-existing argument");
+            service.findById(TAG_ID);
+            fail("Method findById should throw exception EntityNotFoundException");
         } catch (EntityNotFoundException e) {
             assertTrue(true);
         }
     }
 
     @Test
-    void findAllShouldFinishSuccessfully() {
-        List<TagDto> expectedList = List.of(expected, expected, expected);
-        doReturn(List.of(tag, tag, tag)).when(tagDao).findAll();
-        List<TagDto> actual = tagService.findAll();
-        assertEquals(expectedList, actual);
+    void findAll() {
+        doReturn(tagList).when(tagDao).findAll();
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        List<TagDto> actualList = service.findAll();
+        assertEquals(expectedList, actualList);
     }
 
     @Test
-    void findAllShouldFinishSuccessfullyWithEmptyList() {
-        List<TagDto> expectedList = new ArrayList<>();
-        doReturn(new ArrayList<>()).when(tagDao).findAll();
-        List<TagDto> actual = tagService.findAll();
-        assertEquals(expectedList, actual);
+    void findAllReturnsEmptyList() {
+        doReturn(List.of()).when(tagDao).findAll();
+        List<TagDto> actualList = service.findAll();
+        assertEquals(List.of(), actualList);
     }
 
     @Test
-    void deleteShouldDeleteTag() {
-        doReturn(true).when(tagDao).delete(tag.getId());
-        doReturn(Optional.of(tag)).when(tagDao).findById(tag.getId());
-        TagDto actual = tagService.delete(expected.getId());
+    void delete() {
+        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        doReturn(false).when(tagDao).isUsed(Mockito.anyLong());
+        doReturn(true).when(tagDao).delete(Mockito.anyLong());
+        TagDto actual = service.delete(TAG_ID);
         assertEquals(expected, actual);
     }
 
     @Test
-    void deleteShouldThrowExceptionWithNonExistingArg() {
-        doReturn(Optional.empty()).when(tagDao).findById(tag.getId());
+    void deleteThrowExceptionWhenResourceDoesntExist() {
+        doReturn(Optional.empty()).when(tagDao).findById(Mockito.anyLong());
         try {
-            tagService.delete(expected.getId());
-            fail("TagServiceImpl.delete(Long id) should throw an exception with non-existing argument");
+            service.delete(TAG_ID);
+            fail("Method delete should throw exception EntityNotFoundException");
         } catch (EntityNotFoundException e) {
             assertTrue(true);
         }
     }
 
     @Test
-    void deleteShouldThrowExceptionWithUsingArg() {
-        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.any(Long.class));
-        doReturn(true).when(tagDao).isUsed(tag.getId());
+    void deleteThrowExceptionWhenResourceInUsed() {
+        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        doReturn(true).when(tagDao).isUsed(Mockito.anyLong());
         try {
-            tagService.delete(expected.getId());
-            fail("TagServiceImpl.delete(Long id) should throw an exception with non-existing argument");
+            service.delete(TAG_ID);
+            fail("Method delete should throw exception EntityIsUsedException");
         } catch (EntityIsUsedException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    void deleteThrowExceptionWhenResourceCannotBeDeleted() {
+        doReturn(Optional.of(tag)).when(tagDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toTagDtoConverter).convert(Mockito.any(Tag.class));
+        doReturn(false).when(tagDao).isUsed(Mockito.anyLong());
+        doReturn(false).when(tagDao).delete(Mockito.anyLong());
+        try {
+            service.delete(TAG_ID);
+            fail("Method delete should throw exception InternalServerException");
+        } catch (InternalServerException e) {
             assertTrue(true);
         }
     }

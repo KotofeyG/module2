@@ -40,6 +40,11 @@ public class ControllerAdvisor {
         return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InternalServerException.class)
+    public ResponseEntity<Object> handleInternalServerException(InternalServerException e, Locale locale) {
+        return new ResponseEntity<>(createResponse(e.getErrorCode(), locale), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private Map<String, Object> createResponse(int errorCode, Locale locale) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put(ERROR_MESSAGE, messages.getMessage(getMessageByCode(errorCode), null, locale));

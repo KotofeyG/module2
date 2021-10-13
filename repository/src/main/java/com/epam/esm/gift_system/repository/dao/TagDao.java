@@ -12,7 +12,7 @@ public interface TagDao extends BaseDao<Tag>{
 
     List<Tag> findAll();
 
-    boolean isExists(String name);
+    boolean isExisting(String name);
 
     boolean isUsed(Long id);
 }

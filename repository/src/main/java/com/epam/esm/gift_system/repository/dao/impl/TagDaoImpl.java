@@ -29,7 +29,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public Tag insert(Tag tag) {
+    public Tag create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(INSERT_NEW_TAG, Statement.RETURN_GENERATED_KEYS);
@@ -73,7 +73,7 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public boolean isExists(String name) {
+    public boolean isExisting(String name) {
         return jdbcTemplate.queryForObject(COUNT_TAG_BY_NAME, Integer.class, name) > ZERO_ROWS_NUMBER;
     }
 
@@ -84,10 +84,6 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        Optional<Tag> optionalTag = findByName(tag.getName());
-        if (optionalTag.isEmpty()) {
-            return insert(tag);
-        }
-        return optionalTag.get();
+        return findByName(tag.getName()).orElse(create(tag));
     }
 }

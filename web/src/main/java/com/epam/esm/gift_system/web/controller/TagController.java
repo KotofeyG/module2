@@ -21,7 +21,7 @@ public class TagController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto insert(@RequestBody TagDto tagDto) {
-        return tagService.insert(tagDto);
+        return tagService.create(tagDto);
     }
 
     @GetMapping("/{id}")

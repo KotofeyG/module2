@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface GiftCertificateDao extends BaseDao<GiftCertificate>{
-    boolean update(Long id, Map<String, Object> fields);
+    boolean isExisting(Long id);
 
-    void addTagsToCertificate(Long id, List<Tag> tags);
+    void update(Long id, Map<String, Object> updatedFields);
 
-    void deleteTagsFromCertificate(Long id, List<Tag> tags);
+    List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList);
 
-    List<GiftCertificate> findByAttributes(String tagName, String searchPart, List<String> sortingFields, String orderSort);
+    void deleteAllTagsFromCertificate(Long id);
+
+    List<GiftCertificate> findByAttributes(String tagName, String searchPart, List<String> sortingFieldList, String orderSort);
 }

@@ -15,13 +15,13 @@ public class GeneralConstant {
 
     /* gift_certificates table */
     public static String CERTIFICATE = "gift_certificates.";
-    public static String CERTIFICATE_ID = "gift_certificates.id";
-    public static String CERTIFICATE_NAME = "gift_certificates.name";
-    public static String CERTIFICATE_DESCRIPTION = "gift_certificates.description";
-    public static String CERTIFICATE_PRICE = "gift_certificates.price";
-    public static String CERTIFICATE_DURATION = "gift_certificates.duration";
-    public static String CERTIFICATE_CREATE_DATE = "gift_certificates.create_date";
-    public static String CERTIFICATE_LAST_UPDATE_DATE = "gift_certificates.last_update_date";
+    public static String CERTIFICATE_ID = CERTIFICATE + "id";
+    public static String CERTIFICATE_NAME = CERTIFICATE + "name";
+    public static String CERTIFICATE_DESCRIPTION = CERTIFICATE + "description";
+    public static String CERTIFICATE_PRICE = CERTIFICATE + "price";
+    public static String CERTIFICATE_DURATION = CERTIFICATE + "duration";
+    public static String CERTIFICATE_CREATE_DATE = CERTIFICATE + "create_date";
+    public static String CERTIFICATE_LAST_UPDATE_DATE = CERTIFICATE + "last_update_date";
 
     /* general constants */
     public static final int SINGLE_ENTITY = 0;

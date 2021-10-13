@@ -21,7 +21,7 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GiftCertificateDto insert(@RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.insert(giftCertificateDto);
+        return giftCertificateService.create(giftCertificateDto);
     }
 
 

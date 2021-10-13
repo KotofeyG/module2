@@ -19,12 +19,19 @@ public class SqlQuery {
             ", description, price, duration, create_date, last_update_date, tags.id, tags.name FROM gift_certificates" +
             " JOIN tags_certificates ON gift_certificate_id=gift_certificates.id JOIN tags ON tags.id=tag_id";
     public static final String FIND_GIFT_CERTIFICATE_BY_ID = FIND_ALL_GIFT_CERTIFICATES + " WHERE gift_certificates.id=?";
-    public static final String FIND_GIFT_CERTIFICATE_BY_NAME = FIND_ALL_GIFT_CERTIFICATES + " WHERE gift_certificates.name=?";
     public static final String ADD_TAG_TO_GIFT_CERTIFICATE = "INSERT INTO tags_certificates" +
             " (gift_certificate_id, tag_id) VALUES (?, ?)";
     public static final String DELETE_GIFT_CERTIFICATE_BY_ID = "DELETE FROM gift_certificates WHERE id=?";
-    public static final String DELETE_TAG_FROM_CERTIFICATE = "DELETE FROM tags_certificates WHERE gift_certificate_id=?" +
-            " AND tag_id=?";
+    public static final String DELETE_ALL_TAGS_FROM_CERTIFICATE = "DELETE FROM tags_certificates WHERE gift_certificate_id=?";
+    public static final String COUNT_CERTIFICATE_BY_ID = "SELECT count(*) FROM gift_certificates WHERE id=?";
+    public static final String START_OF_UPDATE_QUERY = "UPDATE gift_certificates SET ";
+    public static final String MIDDLE_OF_UPDATE_QUERY = "%s=?, ";
+    public static final String END_OF_UPDATE_QUERY = " %s=? WHERE id=?";
+    public static final String SEARCH_AND_SORT_QUERY = "SELECT gift_certificates.id, gift_certificates.name" +
+            ", description, price, duration, create_date, last_update_date, tags.id, tags.name FROM gift_certificates" +
+            " JOIN tags_certificates ON gift_certificate_id=gift_certificates.id JOIN tags ON tag_id=tags.id" +
+            " WHERE tags.name LIKE ('%%' '%s' '%%') AND (gift_certificates.name LIKE CONCAT ('%%', '%s', '%%') " +
+            "OR gift_certificates.description LIKE CONCAT ('%%', '%s', '%%')) ORDER BY ";
 
     private SqlQuery() {
     }

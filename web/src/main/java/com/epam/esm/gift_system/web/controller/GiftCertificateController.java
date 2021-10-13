@@ -25,7 +25,7 @@ public class GiftCertificateController {
     }
 
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificateDto update(@PathVariable Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.update(id, giftCertificateDto);

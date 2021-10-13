@@ -42,24 +42,7 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Optional<Tag> optionalTag;
-        try {
-            optionalTag = Optional.of(jdbcTemplate.queryForObject(FIND_TAG_BY_ID, new TagRowMapper(), id));
-        } catch (EmptyResultDataAccessException e) {
-            optionalTag = Optional.empty();
-        }
-        return optionalTag;
-    }
-
-    @Override
-    public Optional<Tag> findByName(String name) {
-        Optional<Tag> optionalTag;
-        try {
-            optionalTag = Optional.of(jdbcTemplate.queryForObject(FIND_TAG_BY_NAME, new TagRowMapper(), name));
-        } catch (EmptyResultDataAccessException e) {
-            optionalTag = Optional.empty();
-        }
-        return optionalTag;
+        return findBy(id.toString(), FIND_TAG_BY_ID);
     }
 
     @Override
@@ -84,6 +67,16 @@ public class TagDaoImpl implements TagDao {
 
     @Override
     public Tag findOrCreateTag(Tag tag) {
-        return findByName(tag.getName()).orElse(create(tag));
+        return findBy(tag.getName(), FIND_TAG_BY_NAME).orElseGet(() -> create(tag));
+    }
+
+    private Optional<Tag> findBy(String field, String sqlQuery) {
+        Optional<Tag> optionalTag;
+        try {
+            optionalTag = Optional.of(jdbcTemplate.queryForObject(sqlQuery, new TagRowMapper(), field));
+        } catch (EmptyResultDataAccessException e) {
+            optionalTag = Optional.empty();
+        }
+        return optionalTag;
     }
 }

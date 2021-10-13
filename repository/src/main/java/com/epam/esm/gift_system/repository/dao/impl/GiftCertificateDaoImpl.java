@@ -57,12 +57,12 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public void update(Long id, Map<String, Object> updatedFields) {
+    public boolean update(Long id, Map<String, Object> updatedFields) {
         updatedFields.put(LAST_UPDATE_DATE.toString(), LocalDateTime.now());
         String query = SqlQueryBuilder.buildCertificateQueryForUpdate(updatedFields.keySet());
         List<Object> args = new ArrayList<>(updatedFields.values());
         args.add(id);
-        jdbcTemplate.update(query, args.toArray());
+        return jdbcTemplate.update(query, args.toArray()) == SINGLE_ROW;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public void deleteAllTagsFromCertificate(Long id) {
-        jdbcTemplate.update(DELETE_ALL_TAGS_FROM_CERTIFICATE);
+    public boolean deleteAllTagsFromCertificate(Long id) {
+        return jdbcTemplate.update(DELETE_ALL_TAGS_FROM_CERTIFICATE, id) > ZERO_ROWS_NUMBER;
     }
 }

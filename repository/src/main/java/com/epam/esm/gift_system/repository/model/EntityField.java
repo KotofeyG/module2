@@ -13,12 +13,16 @@ public enum EntityField {
         this.name = name;
     }
 
-    public static List<String> getNameList() {
-        return Arrays.stream(EntityField.values()).map(EntityField::toString).toList();
+    public String getName() {
+        return name;
     }
 
     @Override
     public String toString() {
         return super.toString().toLowerCase();
+    }
+
+    public static List<String> getNameList() {
+        return Arrays.stream(EntityField.values()).map(EntityField::getName).toList();
     }
 }

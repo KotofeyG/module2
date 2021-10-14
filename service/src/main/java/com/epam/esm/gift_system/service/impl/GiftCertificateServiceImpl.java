@@ -10,7 +10,7 @@ import com.epam.esm.gift_system.service.GiftCertificateService;
 import com.epam.esm.gift_system.service.converter.GiftCertificateToDtoConverter;
 import com.epam.esm.gift_system.repository.dao.GiftCertificateDao;
 import com.epam.esm.gift_system.service.dto.GiftCertificateDto;
-import com.epam.esm.gift_system.service.util.validator.EntityValidator;
+import com.epam.esm.gift_system.service.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static com.epam.esm.gift_system.repository.model.EntityField.*;
 import static com.epam.esm.gift_system.repository.model.EntityField.DURATION;
-import static com.epam.esm.gift_system.service.util.validator.EntityValidator.ValidationType.*;
+import static com.epam.esm.gift_system.service.validator.EntityValidator.ValidationType.*;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
@@ -90,16 +90,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         int duration = updatedDto.getDuration();
 
         if (name != null && !currentDto.getName().equals(name)) {
-            fieldList.put(NAME.toString(), updatedDto.getName());
+            fieldList.put(NAME.toString(), name);
         }
-        if (updatedDto.getDescription() != null && !currentDto.getDescription().equals(description)) {
-            fieldList.put(DESCRIPTION.toString(), updatedDto.getDescription());
+        if (description != null && !currentDto.getDescription().equals(description)) {
+            fieldList.put(DESCRIPTION.toString(), description);
         }
-        if (updatedDto.getPrice() != null && !currentDto.getPrice().equals(price)) {
-            fieldList.put(PRICE.toString(), updatedDto.getPrice());
+        if (price != null && !currentDto.getPrice().equals(price)) {
+            fieldList.put(PRICE.toString(), price);
         }
-        if (updatedDto.getDuration() != 0 && currentDto.getDuration() != duration) {
-            fieldList.put(DURATION.toString(), updatedDto.getDuration());
+        if (duration != 0 && currentDto.getDuration() != duration) {
+            fieldList.put(DURATION.toString(), duration);
         }
         return fieldList;
     }

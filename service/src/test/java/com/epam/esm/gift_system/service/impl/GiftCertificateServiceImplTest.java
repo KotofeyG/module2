@@ -10,7 +10,7 @@ import com.epam.esm.gift_system.service.converter.GiftCertificateToDtoConverter;
 import com.epam.esm.gift_system.service.dto.GiftCertificateDto;
 import com.epam.esm.gift_system.service.dto.TagDto;
 import com.epam.esm.gift_system.service.exception.*;
-import com.epam.esm.gift_system.service.util.validator.EntityValidator;
+import com.epam.esm.gift_system.service.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.gift_system.service.util.validator.EntityValidator.*;
+import static com.epam.esm.gift_system.service.validator.EntityValidator.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -171,12 +171,9 @@ class GiftCertificateServiceImplTest {
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
         doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         setCheckFieldsResult();
-        doNothing().when(certificateDao).update(Mockito.anyLong(), Mockito.anyMap());
         doReturn(tag).when(toTagConverter).convert(Mockito.any(TagDto.class));
-        doNothing().when(certificateDao).deleteAllTagsFromCertificate(Mockito.anyLong());
+        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(Mockito.anyLong());
         doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
-        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
-        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         GiftCertificateDto actual = service.update(expected.getId(), expected);
         assertEquals(expected, actual);
     }
@@ -184,11 +181,9 @@ class GiftCertificateServiceImplTest {
     @Test
     void updateWithEmptyTagList() {
         expected.setTags(List.of());
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
-        setCheckFieldsResult();
-        doNothing().when(certificateDao).update(Mockito.anyLong(), Mockito.anyMap());
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
         doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
+        setCheckFieldsResult();
         GiftCertificateDto actual = service.update(expected.getId(), expected);
         assertEquals(expected, actual);
     }
@@ -196,13 +191,11 @@ class GiftCertificateServiceImplTest {
     @Test
     void updateWithNullTagList() {
         expected.setTags(null);
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isDurationValid(Mockito.anyInt(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isTagListValid(expected.getTags(), ValidationType.UPDATE);
-        doNothing().when(certificateDao).update(Mockito.anyLong(), Mockito.anyMap());
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
         doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         GiftCertificateDto actual = service.update(expected.getId(), expected);
@@ -213,14 +206,13 @@ class GiftCertificateServiceImplTest {
     void updateWithoutFields() {
         expected = new GiftCertificateDto();
         expected.setTags(tagDtoList);
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
         doReturn(true).when(validator).isNameValid(expected.getName(), ValidationType.UPDATE);
         doReturn(true).when(validator).isDescriptionValid(expected.getDescription(), ValidationType.UPDATE);
         doReturn(true).when(validator).isPriceValid(expected.getPrice(), ValidationType.UPDATE);
         doReturn(true).when(validator).isDurationValid(expected.getDuration(), ValidationType.UPDATE);
         doReturn(true).when(validator).isTagListValid(Mockito.anyList(), Mockito.any(ValidationType.class));
         doReturn(tag).when(toTagConverter).convert(Mockito.any(TagDto.class));
-        doNothing().when(certificateDao).deleteAllTagsFromCertificate(Mockito.anyLong());
+        doReturn(true).when(certificateDao).deleteAllTagsFromCertificate(Mockito.anyLong());
         doReturn(tagList).when(certificateDao).addTagsToCertificate(Mockito.anyLong(), Mockito.anyList());
         doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
         doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
@@ -241,7 +233,6 @@ class GiftCertificateServiceImplTest {
     @Test
     void updateThrowExceptionWhenResourceDoesntExist() {
         try {
-            doReturn(false).when(certificateDao).isExisting(Mockito.anyLong());
             service.update(CERTIFICATE_ID, expected);
             fail("Method insert should throw exception EntityCreationException");
         } catch (EntityNotFoundException e) {
@@ -251,7 +242,8 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void updateThrowExceptionWhenNameInvalid() {
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
+        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         doReturn(false).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         try {
             service.update(CERTIFICATE_ID, expected);
@@ -263,7 +255,8 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void updateThrowExceptionWhenDescriptionInvalid() {
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
+        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(false).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         try {
@@ -276,7 +269,8 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void updateThrowExceptionWhenPriceInvalid() {
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
+        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(false).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ValidationType.class));
@@ -290,7 +284,8 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void updateThrowExceptionWhenDurationInvalid() {
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
+        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ValidationType.class));
@@ -305,7 +300,8 @@ class GiftCertificateServiceImplTest {
 
     @Test
     void updateThrowExceptionWhenTagNameListInvalid() {
-        doReturn(true).when(certificateDao).isExisting(Mockito.anyLong());
+        doReturn(Optional.of(certificate)).when(certificateDao).findById(Mockito.anyLong());
+        doReturn(expected).when(toCertificateDtoConverter).convert(Mockito.any(GiftCertificate.class));
         doReturn(true).when(validator).isNameValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isDescriptionValid(Mockito.anyString(), Mockito.any(ValidationType.class));
         doReturn(true).when(validator).isPriceValid(Mockito.any(BigDecimal.class), Mockito.any(ValidationType.class));

@@ -6,7 +6,7 @@ import com.epam.esm.gift_system.service.converter.DtoToTagConverter;
 import com.epam.esm.gift_system.service.converter.TagToDtoConverter;
 import com.epam.esm.gift_system.service.dto.TagDto;
 import com.epam.esm.gift_system.service.exception.*;
-import com.epam.esm.gift_system.service.util.validator.EntityValidator;
+import com.epam.esm.gift_system.service.validator.EntityValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.gift_system.service.util.validator.EntityValidator.*;
+import static com.epam.esm.gift_system.service.validator.EntityValidator.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

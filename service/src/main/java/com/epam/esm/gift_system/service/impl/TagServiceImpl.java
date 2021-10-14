@@ -6,14 +6,14 @@ import com.epam.esm.gift_system.service.converter.DtoToTagConverter;
 import com.epam.esm.gift_system.service.converter.TagToDtoConverter;
 import com.epam.esm.gift_system.repository.dao.TagDao;
 import com.epam.esm.gift_system.service.dto.TagDto;
-import com.epam.esm.gift_system.service.util.validator.EntityValidator;
+import com.epam.esm.gift_system.service.validator.EntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.gift_system.service.util.validator.EntityValidator.ValidationType.*;
+import static com.epam.esm.gift_system.service.validator.EntityValidator.ValidationType.*;
 
 @Service
 public class TagServiceImpl implements TagService {

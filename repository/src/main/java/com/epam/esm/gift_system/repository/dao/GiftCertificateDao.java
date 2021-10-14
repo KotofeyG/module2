@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface GiftCertificateDao extends BaseDao<GiftCertificate>{
-    boolean isExisting(Long id);
-
     boolean update(Long id, Map<String, Object> updatedFields);
 
     List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList);

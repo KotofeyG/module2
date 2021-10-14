@@ -83,11 +83,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public boolean isExisting(Long id) {
-        return jdbcTemplate.queryForObject(COUNT_CERTIFICATE_BY_ID, Integer.class, id) > ZERO_ROWS_NUMBER;
-    }
-
-    @Override
     public List<Tag> addTagsToCertificate(Long id, List<Tag> addedTagList) {
         addedTagList = addedTagList.stream().map(tagDao::findOrCreateTag).toList();
         for (Tag tag : addedTagList) {
